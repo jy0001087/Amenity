@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.WebSocket;
 
 public class MainActivity extends AppCompatActivity {
     TextView tx_lashen;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         //建立ws链接
         try {
-            wegSocketConnect();
+            wegSocketConnect(getApplicationContext());
         } catch (Exception e) {
             XLog.tag("TTS").e(e.getStackTrace());
         }
@@ -208,14 +209,14 @@ public class MainActivity extends AppCompatActivity {
     String apiSecret="NzZmOGNhMmRhNjE4Mjc2N2Q2MDEwMGRh";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void wegSocketConnect() throws Exception {
-        TtsWebSocketListener listener = new TtsWebSocketListener();
+    private void wegSocketConnect(Context context) throws Exception {
+        TtsWebSocketListener listener = new TtsWebSocketListener(context);
         Request request = new Request.Builder()
                 .url(listener.getAuthUrl(host,apiKey,apiSecret)
                         .replace("https://","wss://"))
                 .build();
         OkHttpClient client = new OkHttpClient();
-        client.newWebSocket(request, listener);
+        WebSocket ws = client.newWebSocket(request, listener);
     }
 
 }

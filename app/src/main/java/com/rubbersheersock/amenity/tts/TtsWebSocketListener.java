@@ -1,15 +1,20 @@
 package com.rubbersheersock.amenity.tts;
 
-import android.net.Uri;
+import android.content.Context;
 import android.os.Build;
+import android.os.Environment;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 
 import com.elvishew.xlog.XLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -28,23 +33,61 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
 public class TtsWebSocketListener extends WebSocketListener {
+    public Context context= null;
+    public TtsWebSocketListener(Context context){
+     this.context=context;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
         super.onOpen(webSocket, response);
         XLog.tag("TTS").i("connect is opened!");
-        webSocket.send("hello!");
+        String appId = "b772e2ac";
+        try {
+            TtsRequestJson requestJson = new TtsRequestJson.TtsJsonBuilder(appId,"lame","xujiu","10秒")
+                    .Build();
+            webSocket.send(requestJson.frame.toString());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
         super.onMessage(webSocket, text);
-        XLog.tag("TTS").i("Get messsage : "+text);
+        //XLog.tag("TTS").i("Get messsage : "+text);
+        try{
+            JSONObject responseJson = new JSONObject(text);
+            if(responseJson.getInt("code")==0){
+                JSONObject data = responseJson.getJSONObject("data");
+                String mp3 = data.getString("audio");
+                XLog.tag("TTS").i( "mp3 = "+ mp3);
+                byte[] buffer = Base64.getDecoder().decode(mp3);
+                File file = new File( context.getExternalFilesDir(
+                        Environment.DIRECTORY_MUSIC), "mp3.mp3");
+                XLog.tag("TTS").i("mp3 has been saved here :"+file.getPath());
+                FileOutputStream out = new FileOutputStream(file);
+                out.write(buffer);
+                out.close();
+            }
+        }catch(Exception e){
+            XLog.tag("TTS").e(e.toString());
+        }
+
     }
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
         super.onFailure(webSocket, t, response);
         XLog.tag("TTS").e("WebSocket fail，cause by : "+response+"\n Error is "+t.getMessage());
+    }
+
+    @Override
+    public void onClosing(WebSocket webSocket,int code,String reason){
+        webSocket.close(1000,null);
+        XLog.tag("TTS").i("WebSocket is onClosing!!");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
