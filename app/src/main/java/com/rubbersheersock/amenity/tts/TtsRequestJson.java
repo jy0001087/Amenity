@@ -14,7 +14,10 @@ import java.util.Base64;
 
 
 public class TtsRequestJson {
-    public JSONObject frame;
+    private JSONObject frame;
+    public JSONObject getFrame() {
+        return frame;
+    }
 
     private TtsRequestJson(TtsJsonBuilder builder){
         this.frame=builder.frame;
@@ -43,7 +46,7 @@ public class TtsRequestJson {
         JSONObject data = new JSONObject();
 
         @RequiresApi(api = Build.VERSION_CODES.O)
-        public TtsJsonBuilder(String appId, String aue, String vcn, String text) throws JSONException, UnsupportedEncodingException {
+        public TtsJsonBuilder(String appId, String aue, String vcn, String text) throws UnsupportedEncodingException {
             this.appId=appId;
             this.aue=aue;
             this.vcn=vcn;
@@ -51,17 +54,6 @@ public class TtsRequestJson {
             this.sfl=1;
             this.tte = "UTF8";
             this.text = Base64.getEncoder().encodeToString(new String(text).getBytes("utf-8"));
-            common.put("app_id", this.appId);
-            business.put("aue", this.aue);
-            business.put("sfl", this.sfl);
-            business.put("vcn", this.vcn);
-            business.put("tte",this.tte);
-            data.put("text",this.text);
-            data.put("status",this.status);
-            frame.put("common", common);
-            frame.put("business", business);
-            frame.put("data", data);
-            XLog.i("frame = "+frame.toString());
         }
 
         public TtsJsonBuilder setSfl(Integer sfl) {
@@ -115,9 +107,18 @@ public class TtsRequestJson {
             return this;
         }
 
-        public TtsRequestJson Build(){
+        public TtsRequestJson Build() throws JSONException {
+            common.put("app_id", this.appId);
+            business.put("aue", this.aue);
+            business.put("sfl", this.sfl);
+            business.put("vcn", this.vcn);
+            business.put("tte",this.tte);
+            data.put("text",this.text);
+            data.put("status",this.status);
+            frame.put("common", common);
+            frame.put("business", business);
+            frame.put("data", data);
             return new TtsRequestJson(this);
         }
-
     }
 }

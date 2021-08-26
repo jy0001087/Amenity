@@ -33,22 +33,25 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
 public class TtsWebSocketListener extends WebSocketListener {
-    public Context context= null;
-    public TtsWebSocketListener(Context context){
-     this.context=context;
+    public Context context = null;
+    public String inputtext = "";
+
+    public TtsWebSocketListener(Context context, String inputtext) {
+        this.context = context;
+        this.inputtext = inputtext;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
         super.onOpen(webSocket, response);
-        XLog.tag("TTS").i("connect is opened!");
+        XLog.tag("TTS").i("websocket connection is opened!");
         String appId = "b772e2ac";
         try {
-            TtsRequestJson requestJson = new TtsRequestJson.TtsJsonBuilder(appId,"lame","xujiu","10秒")
+            TtsRequestJson requestJson = new TtsRequestJson.TtsJsonBuilder(appId, "lame", "aisbabyxu", inputtext)
                     .Build();
-            webSocket.send(requestJson.frame.toString());
-        }catch(Exception e){
+            webSocket.send(requestJson.getFrame().toString());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -57,36 +60,39 @@ public class TtsWebSocketListener extends WebSocketListener {
     @Override
     public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
         super.onMessage(webSocket, text);
-        //XLog.tag("TTS").i("Get messsage : "+text);
-        try{
+        XLog.tag("TTS").i("message received ");
+        try {
             JSONObject responseJson = new JSONObject(text);
-            if(responseJson.getInt("code")==0){
+            if (responseJson.getInt("code") == 0) {
                 JSONObject data = responseJson.getJSONObject("data");
-                String mp3 = data.getString("audio");
-                XLog.tag("TTS").i( "mp3 = "+ mp3);
-                byte[] buffer = Base64.getDecoder().decode(mp3);
-                File file = new File( context.getExternalFilesDir(
-                        Environment.DIRECTORY_MUSIC), "mp3.mp3");
-                XLog.tag("TTS").i("mp3 has been saved here :"+file.getPath());
-                FileOutputStream out = new FileOutputStream(file);
-                out.write(buffer);
-                out.close();
+                byte[] buffer = Base64.getDecoder().decode(data.getString("audio"));
+                //储存文件
+                File file =new File(context.getExternalFilesDir(null), inputtext + ".mp3");
+                if(file.createNewFile()) {
+                    FileOutputStream out = new FileOutputStream(file);
+                    out.write(buffer);
+                    out.close();
+                    XLog.tag("TTS").i(inputtext + ".mp3 is created!");
+                }else{
+                    XLog.tag("TTS").e("文件创建异常");
+                }
             }
-        }catch(Exception e){
-            XLog.tag("TTS").e(e.toString());
+        } catch (Exception e) {
+            XLog.tag("TTS").e("something goes wrong while writing file ");
+            e.printStackTrace();
         }
-
+        webSocket.close(1000,"Thanks Bye!");
     }
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
         super.onFailure(webSocket, t, response);
-        XLog.tag("TTS").e("WebSocket fail，cause by : "+response+"\n Error is "+t.getMessage());
+        XLog.tag("TTS").e("WebSocket fail，cause by : " + response + "\n Error is " + t.getMessage());
     }
 
     @Override
-    public void onClosing(WebSocket webSocket,int code,String reason){
-        webSocket.close(1000,null);
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        webSocket.close(1000, null);
         XLog.tag("TTS").i("WebSocket is onClosing!!");
     }
 
@@ -101,13 +107,13 @@ public class TtsWebSocketListener extends WebSocketListener {
                 append("GET ").append(url.getPath()).append(" HTTP/1.1");
         Charset charset = Charset.forName("UTF-8");
         Mac mac = Mac.getInstance("hmacsha256");
-        XLog.tag("TTS").i("origin secrt is :"+builder);
+//        XLog.tag("TTS").i("origin secrt is :" + builder);
 
         SecretKeySpec spec = new SecretKeySpec(apiSecret.getBytes(charset), "hmacsha256");
         mac.init(spec);
         byte[] hexDigits = mac.doFinal(builder.toString().getBytes(charset));
         String sha = Base64.getEncoder().encodeToString(hexDigits);
-        XLog.tag("TTS").i("sha="+sha);
+//        XLog.tag("TTS").i("sha=" + sha);
 
         String authorization = String.format("api_key=\"%s\", algorithm=\"%s\", headers=\"%s\", signature=\"%s\"", apiKey, "hmac-sha256", "host date request-line", sha);
         HttpUrl httpUrl = HttpUrl.parse("https://" + url.getHost() + url.getPath()).newBuilder().
@@ -117,5 +123,5 @@ public class TtsWebSocketListener extends WebSocketListener {
                 build();
         XLog.tag("TTS-URL-HTTPS").i(httpUrl);
         return httpUrl.toString();
-         }
+    }
 }

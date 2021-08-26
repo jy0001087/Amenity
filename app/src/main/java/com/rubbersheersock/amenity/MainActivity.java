@@ -4,11 +4,14 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -26,6 +29,11 @@ import com.rubbersheersock.amenity.room.AmenityDatabase;
 import com.rubbersheersock.amenity.tts.TtsWebSocketListener;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -71,13 +79,6 @@ public class MainActivity extends AppCompatActivity {
         //更新记录区域
         refreshTextView();
 
-        //建立ws链接
-        try {
-            wegSocketConnect(getApplicationContext());
-        } catch (Exception e) {
-            XLog.tag("TTS").e(e.getStackTrace());
-        }
-
         //按钮事件处理
         bt.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     insertThread.start();
                     //数据插入未结束前，时阻断程序执行
-                    while(insertThread.isAlive()){
+                    while (insertThread.isAlive()) {
                         XLog.i("insert is still running!");
                     }
                     bt.setText("start");
@@ -116,12 +117,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
                 if (getChronometerSeconds(ch) % 10 == 0) {
-                    XLog.i("I'm been boomed!!" + ZonedDateTime.now());
-                    startAlarm(getApplicationContext());
+                    XLog.i("I'm been boomed!!" + getChronometerSeconds(ch));
+                    startAlarm(getApplicationContext(), getChronometerSeconds(ch) + "");
                 }
             }
         });
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -167,25 +167,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Message message = new Message();
-                message.what=1;
-                message.obj=getTextViewContent("textViewLASHEN");
+                message.what = 1;
+                message.obj = getTextViewContent("textViewLASHEN");
                 handler.sendMessage(message);
             }
         }).start();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public String getTextViewContent(String updateview){
-        String content="0 秒";
+    public String getTextViewContent(String updateview) {
+        String content = "0 秒";
         long duration = 0;
         int frequency = 0;
         Amenity[] amenities = AmenityQuery();
         XLog.i("There is " + amenities.length + " 条记录");
-        for(int i=0;i<amenities.length;i++) {
+        for (int i = 0; i < amenities.length; i++) {
             switch (updateview) {
                 case "textViewLASHEN":
-                    if(amenities[i].getCreateTime().toLocalDate().equals(LocalDate.now())){
-                        duration = duration+amenities[i].getValue();
+                    if (amenities[i].getCreateTime().toLocalDate().equals(LocalDate.now())) {
+                        duration = duration + amenities[i].getValue();
                         frequency++;
                     }
                     break;
@@ -193,30 +193,54 @@ public class MainActivity extends AppCompatActivity {
                     content = "updatezone is undefaulted!";
             }
         }
-        content = frequency + " 次，共计 " +duration/60 +" 分钟 "+ duration%60 +" 秒";
+        content = frequency + " 次，共计 " + duration / 60 + " 分钟 " + duration % 60 + " 秒";
         return content;
     }
 
-    private static void startAlarm(Context context) {
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        if (notification == null) return;
-        Ringtone r = RingtoneManager.getRingtone(context, notification);
-        r.play();
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startAlarm(Context context, String inputtext) {
+        String filepath = context.getExternalFilesDir(null).getPath() +"/" +inputtext + "秒.mp3";
+        XLog.i("filepath = "+filepath);
+        final MediaPlayer  mediaPlayer = new MediaPlayer();
+            Thread playerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(filepath));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                    } catch (IOException notfound) {
+                        XLog.tag("media").i("不存在" + inputtext + "秒.mp3");
+                        try {
+                            wegSocketConnect(context, inputtext + "秒");
+                        } catch (Exception e) {
+                            XLog.tag("TTS-websocket").e(e.getStackTrace());
+                        }
+                    } catch (Exception e) {
+                        XLog.e("Media Player is not going well!");
+                        e.printStackTrace();
+                    }
+                }
+            });
+            playerThread.start();
+            while(!(playerThread.isAlive())){
+                mediaPlayer.release();
+        }
     }
-
-    String host = "https://tts-api.xfyun.cn/v2/tts";
-    String apiKey="18487e76e7cd9e796da89411ba0af5ef";
-    String apiSecret="NzZmOGNhMmRhNjE4Mjc2N2Q2MDEwMGRh";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void wegSocketConnect(Context context) throws Exception {
-        TtsWebSocketListener listener = new TtsWebSocketListener(context);
+    private void wegSocketConnect(Context context, String inputtext) throws Exception {
+        String host = "https://tts-api.xfyun.cn/v2/tts";
+        String apiKey = "18487e76e7cd9e796da89411ba0af5ef";
+        String apiSecret = "NzZmOGNhMmRhNjE4Mjc2N2Q2MDEwMGRh";
+
+        TtsWebSocketListener listener = new TtsWebSocketListener(context, inputtext);
         Request request = new Request.Builder()
-                .url(listener.getAuthUrl(host,apiKey,apiSecret)
-                        .replace("https://","wss://"))
+                .url(listener.getAuthUrl(host, apiKey, apiSecret)
+                        .replace("https://", "wss://"))
                 .build();
         OkHttpClient client = new OkHttpClient();
-        WebSocket ws = client.newWebSocket(request, listener);
+        client.newWebSocket(request, listener);
     }
-
 }
