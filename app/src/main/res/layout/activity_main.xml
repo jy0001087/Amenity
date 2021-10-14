@@ -44,4 +44,13 @@
         app:layout_constraintEnd_toStartOf="@+id/textViewLASHEN"
         app:layout_constraintTop_toBottomOf="@+id/chronometer" />
 
+    <TextView
+        android:id="@+id/GSMtextView"
+        android:layout_width="290dp"
+        android:layout_height="61dp"
+        android:layout_marginBottom="113dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/startbutton"
+        tools:layout_editor_absoluteX="60dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,8 +2,11 @@ package com.rubbersheersock.amenity;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
@@ -15,6 +18,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.telephony.CellInfo;
+import android.telephony.NeighboringCellInfo;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.telephony.gsm.GsmCellLocation;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -38,6 +46,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,7 +54,13 @@ import okhttp3.WebSocket;
 
 public class MainActivity extends AppCompatActivity {
     TextView tx_lashen;
+    TextView textviewGSM;
     mHandler handler = new mHandler();
+    gsmHandler handlergsm= new gsmHandler();
+
+    //声明基站获取变量
+    private TelephonyManager tm = null;
+
 
     class mHandler extends Handler {
         // 通过复写handlerMessage() 从而确定更新UI的操作
@@ -56,10 +71,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    class gsmHandler extends Handler {
+        // 通过复写handlerMessage() 从而确定更新UI的操作
+        @Override
+        public void handleMessage(Message msg) {
+            XLog.i("handler 被执行了");
+            textviewGSM.setText(msg.obj.toString());
+        }
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         Chronometer ch;
         Button bt;
 
@@ -75,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         ch = (Chronometer) findViewById(R.id.chronometer);
         bt = (Button) findViewById(R.id.startbutton);
         tx_lashen = (TextView) findViewById(R.id.textViewLASHEN);
+        textviewGSM = (TextView) findViewById(R.id.GSMtextView);
 
         //更新记录区域
         refreshTextView();
@@ -122,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        returnGMSinfo();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -172,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 handler.sendMessage(message);
             }
         }).start();
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -199,33 +228,33 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startAlarm(Context context, String inputtext) {
-        String filepath = context.getExternalFilesDir(null).getPath() +"/" +inputtext + "秒.mp3";
-        XLog.i("filepath = "+filepath);
-        final MediaPlayer  mediaPlayer = new MediaPlayer();
-            Thread playerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
+        String filepath = context.getExternalFilesDir(null).getPath() + "/" + inputtext + "秒.mp3";
+        XLog.i("filepath = " + filepath);
+        final MediaPlayer mediaPlayer = new MediaPlayer();
+        Thread playerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(filepath));
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException notfound) {
+                    XLog.tag("media").i("不存在" + inputtext + "秒.mp3");
                     try {
-                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(filepath));
-                        mediaPlayer.prepare();
-                        mediaPlayer.start();
-                    } catch (IOException notfound) {
-                        XLog.tag("media").i("不存在" + inputtext + "秒.mp3");
-                        try {
-                            wegSocketConnect(context, inputtext + "秒");
-                        } catch (Exception e) {
-                            XLog.tag("TTS-websocket").e(e.getStackTrace());
-                        }
+                        wegSocketConnect(context, inputtext + "秒");
                     } catch (Exception e) {
-                        XLog.e("Media Player is not going well!");
-                        e.printStackTrace();
+                        XLog.tag("TTS-websocket").e(e.getStackTrace());
                     }
+                } catch (Exception e) {
+                    XLog.e("Media Player is not going well!");
+                    e.printStackTrace();
                 }
-            });
-            playerThread.start();
-            while(!(playerThread.isAlive())){
-                mediaPlayer.release();
+            }
+        });
+        playerThread.start();
+        while (!(playerThread.isAlive())) {
+            mediaPlayer.release();
         }
     }
 
@@ -242,5 +271,49 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         OkHttpClient client = new OkHttpClient();
         client.newWebSocket(request, listener);
+    }
+
+    private void returnGMSinfo() {
+        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        XLog.tag("GSM").i("mcc+mnc -- " + tm.getNetworkOperator() + "|" + tm.getNetworkType());
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        GsmCellLocation location = (GsmCellLocation) tm.getCellLocation();
+        if (location != null) {
+            XLog.tag("GSM").i("mcc+mnc -- " + tm.getNetworkOperator() + " | " + location.getLac() + " | " + location.getCid());
+            new Thread(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void run() {
+                    Message message = new Message();
+                    message.what = 1;
+                    message.obj = "mcc+mnc=" + tm.getNetworkOperator() + "; LAC=" + location.getLac() + "; CID=" + location.getCid();
+                    handlergsm.sendMessage(message);
+                }
+            }).start();
+        }else{
+            XLog.tag("GSM").e("Get GSMcellinfo failed!");
+        }
+
     }
 }
