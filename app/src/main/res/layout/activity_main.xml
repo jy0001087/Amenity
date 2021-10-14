@@ -48,9 +48,18 @@
         android:id="@+id/GSMtextView"
         android:layout_width="290dp"
         android:layout_height="61dp"
-        android:layout_marginBottom="113dp"
+        android:layout_marginBottom="132dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/startbutton"
-        tools:layout_editor_absoluteX="60dp" />
+        tools:layout_editor_absoluteX="62dp" />
+
+    <TextView
+        android:id="@+id/GPStextView"
+        android:layout_width="285dp"
+        android:layout_height="92dp"
+        android:layout_marginBottom="18dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/startbutton"
+        tools:layout_editor_absoluteX="62dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

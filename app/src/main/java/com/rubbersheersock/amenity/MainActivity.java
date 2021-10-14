@@ -1,5 +1,6 @@
 package com.rubbersheersock.amenity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -7,20 +8,17 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.telephony.CellInfo;
-import android.telephony.NeighboringCellInfo;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.view.View;
@@ -36,27 +34,20 @@ import com.rubbersheersock.amenity.room.AmenityDataProcesser;
 import com.rubbersheersock.amenity.room.AmenityDatabase;
 import com.rubbersheersock.amenity.tts.TtsWebSocketListener;
 
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.WebSocket;
 
 public class MainActivity extends AppCompatActivity {
     TextView tx_lashen;
     TextView textviewGSM;
+    TextView textviewGPS;
     mHandler handler = new mHandler();
-    gsmHandler handlergsm= new gsmHandler();
+    gsmHandler handlergsm = new gsmHandler();
+    gpsHandler handlergps = new gpsHandler();
 
     //声明基站获取变量
     private TelephonyManager tm = null;
@@ -77,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             XLog.i("handler 被执行了");
             textviewGSM.setText(msg.obj.toString());
+        }
+    }
+
+    class gpsHandler extends Handler {
+        // 通过复写handlerMessage() 从而确定更新UI的操作
+        @Override
+        public void handleMessage(Message msg) {
+            XLog.i("handler 被执行了");
+            textviewGPS.setText(msg.obj.toString());
         }
     }
 
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         bt = (Button) findViewById(R.id.startbutton);
         tx_lashen = (TextView) findViewById(R.id.textViewLASHEN);
         textviewGSM = (TextView) findViewById(R.id.GSMtextView);
+        textviewGPS = (TextView) findViewById(R.id.GPStextView);
 
         //更新记录区域
         refreshTextView();
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         returnGMSinfo();
+        getLocationFigure();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -311,9 +313,92 @@ public class MainActivity extends AppCompatActivity {
                     handlergsm.sendMessage(message);
                 }
             }).start();
-        }else{
+        } else {
             XLog.tag("GSM").e("Get GSMcellinfo failed!");
         }
-
     }
+
+    private void getLocationFigure() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,      //GPS定位提供者
+                1000,       //更新数据时间为1秒
+                1,      //位置间隔为1米                //位置监听器
+                new LocationListener() {  //GPS定位信息发生改变时触发，用于更新位置信息
+                    @Override
+                    public void onLocationChanged(Location location) {                        //GPS信息发生改变时，更新位置                        locationUpdates(location);
+                    }
+
+                    @Override                    //位置状态发生改变时触发
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                    }
+
+                    @Override                    //定位提供者启动时触发
+                    public void onProviderEnabled(String provider) {
+                    }
+
+                    @Override                    //定位提供者关闭时触发
+                    public void onProviderDisabled(String provider) {
+                    }
+                });        //从GPS获取最新的定位信息
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location != null) {
+            StringBuilder stringBuilder = new StringBuilder();        //使用StringBuilder保存数据            //获取经度、纬度、等属性值
+            stringBuilder.append("您的位置信息：\n");
+            stringBuilder.append("经度：");
+            stringBuilder.append(location.getLongitude());
+            stringBuilder.append("\n纬度：");
+            stringBuilder.append(location.getLatitude());//            stringBuilder.append("\n精确度：");//            stringBuilder.append(location.getAccuracy());//            stringBuilder.append("\n高度：");//            stringBuilder.append(location.getAltitude());//            stringBuilder.append("\n方向：");//            stringBuilder.append(location.getBearing());//            stringBuilder.append("\n速度：");//            stringBuilder.append(location.getSpeed());//            stringBuilder.append("\n时间：");//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH mm ss");    //设置日期时间格式//            stringBuilder.append(dateFormat.format(new Date(location.getTime())));
+            XLog.tag("GPS").i(stringBuilder);
+            new Thread(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void run() {
+                    Message message = new Message();
+                    message.what = 1;
+                    message.obj = stringBuilder;
+                    handlergps.sendMessage(message);
+                }
+            }).start();
+        }
+        else{
+            XLog.tag("GPS").e("Get location failed!!");
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
+        }
+    }
+    private final LocationListener locationListener=new LocationListener() {
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            XLog.tag("GPS").i("location update request !!");
+            if (location != null) {
+                StringBuilder stringBuilder = new StringBuilder();        //使用StringBuilder保存数据            //获取经度、纬度、等属性值
+                stringBuilder.append("您的位置信息：\n");
+                stringBuilder.append("经度：");
+                stringBuilder.append(location.getLongitude());
+                stringBuilder.append("\n纬度：");
+                stringBuilder.append(location.getLatitude());//            stringBuilder.append("\n精确度：");//            stringBuilder.append(location.getAccuracy());//            stringBuilder.append("\n高度：");//            stringBuilder.append(location.getAltitude());//            stringBuilder.append("\n方向：");//            stringBuilder.append(location.getBearing());//            stringBuilder.append("\n速度：");//            stringBuilder.append(location.getSpeed());//            stringBuilder.append("\n时间：");//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH mm ss");    //设置日期时间格式//            stringBuilder.append(dateFormat.format(new Date(location.getTime())));
+                XLog.tag("GPS").i(stringBuilder);
+                new Thread(new Runnable() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void run() {
+                        Message message = new Message();
+                        message.what = 1;
+                        message.obj = stringBuilder;
+                        handlergps.sendMessage(message);
+                    }
+                }).start();
+            }
+        }
+    };
 }
