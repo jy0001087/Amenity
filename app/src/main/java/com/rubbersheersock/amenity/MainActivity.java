@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -26,9 +27,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
+import com.rubbersheersock.amenity.Services.ScreenObserver;
+import com.rubbersheersock.amenity.Services.ScreenObserverService;
 import com.rubbersheersock.amenity.room.Amenity;
 import com.rubbersheersock.amenity.room.AmenityDataProcesser;
 import com.rubbersheersock.amenity.room.AmenityDatabase;
@@ -80,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +97,10 @@ public class MainActivity extends AppCompatActivity {
         XLog.init(LogLevel.ALL);
         XLog.i("Activity onCreate");
 
-        //设置屏幕常亮
+        //启动后台服务
+        final Intent intent = new Intent(this, ScreenObserverService.class);
+        startService(intent);
+    //设置屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         //控件处理
         ch = (Chronometer) findViewById(R.id.chronometer);
@@ -401,4 +407,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
 }
