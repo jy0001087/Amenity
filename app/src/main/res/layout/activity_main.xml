@@ -30,36 +30,42 @@
         android:id="@+id/textViewLASHEN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="132dp"
         android:text="TextView"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textViewLASHEN_title"
-        app:layout_constraintEnd_toEndOf="@+id/chronometer" />
+        app:layout_constraintBottom_toTopOf="@+id/GSMtextView"
+        tools:layout_editor_absoluteX="237dp"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textViewLASHEN_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="32dp"
+        android:layout_width="110dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="36dp"
         android:text="今日累计拉伸"
         app:layout_constraintEnd_toStartOf="@+id/textViewLASHEN"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/chronometer"
         app:layout_constraintTop_toBottomOf="@+id/chronometer" />
 
     <TextView
         android:id="@+id/GSMtextView"
-        android:layout_width="290dp"
+        android:layout_width="300dp"
         android:layout_height="61dp"
+        android:layout_marginStart="60dp"
         android:layout_marginBottom="132dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/startbutton"
-        tools:layout_editor_absoluteX="62dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/GPStextView"
-        android:layout_width="285dp"
+        android:layout_width="300dp"
         android:layout_height="92dp"
-        android:layout_marginBottom="18dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="20dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/startbutton"
-        tools:layout_editor_absoluteX="62dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

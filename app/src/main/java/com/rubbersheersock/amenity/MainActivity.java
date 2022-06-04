@@ -27,11 +27,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
-import com.rubbersheersock.amenity.Services.ScreenObserver;
 import com.rubbersheersock.amenity.Services.ScreenObserverService;
 import com.rubbersheersock.amenity.room.Amenity;
 import com.rubbersheersock.amenity.room.AmenityDataProcesser;
