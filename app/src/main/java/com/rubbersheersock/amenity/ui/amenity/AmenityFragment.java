@@ -1,4 +1,4 @@
-package com.rubbersheersock.amenity.ui.dashboard;
+package com.rubbersheersock.amenity.ui.amenity;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,23 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.rubbersheersock.amenity.databinding.FragmentDashboardBinding;
+import com.rubbersheersock.amenity.databinding.FragmentAmenityBinding;
+import com.rubbersheersock.amenity.databinding.FragmentAmenityBinding;
 
-public class DashboardFragment extends Fragment {
+public class AmenityFragment extends Fragment {
 
-    private FragmentDashboardBinding binding;
+    private FragmentAmenityBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        AmenityViewModel amenityViewModel =
+                new ViewModelProvider(this).get(AmenityViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentAmenityBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        amenityViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

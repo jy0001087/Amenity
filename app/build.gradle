@@ -57,5 +57,5 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
     implementation "com.squareup.okhttp3:okhttp:4.9.0"
-
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.25'
 }
