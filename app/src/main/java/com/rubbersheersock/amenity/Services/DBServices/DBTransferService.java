@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import com.elvishew.xlog.XLog;
 import com.rubbersheersock.amenity.PubTools.HttpUnit;
 
+import org.json.JSONObject;
+
 import java.sql.SQLException;
 
 import okhttp3.OkHttpClient;
@@ -27,11 +29,12 @@ public class DBTransferService extends Service {
             @Override
             public void run() {
                 try {
-                    HttpUnit ht = new HttpUnit.Builder("http://192.168.0.109:8080/WordReader_war","DataServlet")
+                    HttpUnit ht = new HttpUnit.Builder("http://cloud.wind4us.com:8080/Spider-0.1-SNAPSHOT","DataServlet")
                             .build();
                     OkHttpClient client= new OkHttpClient.Builder().build();
                     Response response = client.newCall(ht.getRequest()).execute();
                     if(response.code()==200){
+                        JSONObject json = new JSONObject(response.body().string());
                         XLog.tag("HTTP").i("访问正常"+response.body().string());
                     }
                 } catch (Exception e) {
