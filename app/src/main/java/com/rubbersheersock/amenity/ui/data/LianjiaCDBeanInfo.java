@@ -8,6 +8,8 @@ public class LianjiaCDBeanInfo {
     public int totalHouseForSaleNumber;
     public Timestamp latestUpdateTimeStamp;
     public int newForSaleNumber;
+    public int soldNumber;
     public List<LianjiaCDBean> newForSaleHouseList = new LinkedList<>();
     public List<LianjiaCDBean> monitorHouseList = new LinkedList<>();
+    public List<LianjiaCDBean> soldHouseList = new LinkedList<>();
 }

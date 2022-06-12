@@ -83,17 +83,22 @@ public class DataProcessor {
         LianjiaCDBeanInfo beanInfo = new LianjiaCDBeanInfo();
         beanInfo.totalHouseForSaleNumber=beanList.size();
         beanInfo.newForSaleNumber=0;
+        beanInfo.soldNumber=0;
         beanInfo.latestUpdateTimeStamp = new Timestamp(1305687917);
         for(int i=0;i<beanList.size();i++) {
-            if(beanList.get(i).updatedate==null){
+            LianjiaCDBean bean = beanList.get(i);
+            if(bean.updatedate==null){
                 beanInfo.newForSaleNumber++;
-                beanInfo.newForSaleHouseList.add(beanList.get(i));
-            }else if(beanInfo.latestUpdateTimeStamp.before(beanList.get(i).updatedate)) {
-                beanInfo.latestUpdateTimeStamp = beanList.get(i).updatedate;
+                beanInfo.newForSaleHouseList.add(bean);
+            }else if(beanInfo.latestUpdateTimeStamp.before(bean.updatedate)) {
+                beanInfo.latestUpdateTimeStamp = bean.updatedate;
             }
-            //捕获目标房屋信息
-            if(beanList.get(i).proportion>65 & beanList.get(i).proportion<66){
-                beanInfo.monitorHouseList.add(beanList.get(i));
+            //捕获目标房屋信息65平左右
+            if((bean.updatedate.getTime()+24*60*60*2*1000)<System.currentTimeMillis()){
+                beanInfo.soldNumber++;
+                beanInfo.soldHouseList.add(bean);
+            }else if(bean.proportion>65 & bean.proportion<66){
+                beanInfo.monitorHouseList.add(bean);
             }
         }
 
