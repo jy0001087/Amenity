@@ -91,6 +91,10 @@ public class DataProcessor {
             }else if(beanInfo.latestUpdateTimeStamp.before(beanList.get(i).updatedate)) {
                 beanInfo.latestUpdateTimeStamp = beanList.get(i).updatedate;
             }
+            //捕获目标房屋信息
+            if(beanList.get(i).proportion>65 & beanList.get(i).proportion<66){
+                beanInfo.monitorHouseList.add(beanList.get(i));
+            }
         }
 
         return beanInfo;

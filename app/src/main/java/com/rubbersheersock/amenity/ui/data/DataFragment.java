@@ -78,10 +78,18 @@ public class DataFragment extends Fragment {
                 LianjiaCDBeanInfo info = DataProcessor.getHouseInfo(beanlist);
                 final List<String> adapterData = new ArrayList<String>();
                 //存放要显示的数据
-                String brief = "最近更新时间为: "+info.latestUpdateTimeStamp+"; "
+                String brief = "最近更新时间为: "+info.latestUpdateTimeStamp+"; \n"
                         +"上次更新新增房源: "+info.newForSaleNumber +"; "
-                        +"所有房源: "+info.totalHouseForSaleNumber +"; ";
+                        +"所有房源: "+info.totalHouseForSaleNumber +"; \n";
                 adapterData.add(brief);
+
+                for(int i=0;i<info.monitorHouseList.size();i++){
+                    LianjiaCDBean bean = info.monitorHouseList.get(i);
+                    String monitorInfo = "面积: "+bean.proportion+" ;"
+                            +"售价:"+bean.price+" \n"
+                            +"更新时间: "+bean.fetchdate+" ";
+                    adapterData.add(monitorInfo);
+                }
 
                 //创建ArrayAdapter对象adapter并设置适配器
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),

@@ -9,4 +9,5 @@ public class LianjiaCDBeanInfo {
     public Timestamp latestUpdateTimeStamp;
     public int newForSaleNumber;
     public List<LianjiaCDBean> newForSaleHouseList = new LinkedList<>();
+    public List<LianjiaCDBean> monitorHouseList = new LinkedList<>();
 }
