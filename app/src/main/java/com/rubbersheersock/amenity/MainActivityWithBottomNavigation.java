@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import com.rubbersheersock.amenity.databinding.ActivityMainWithBottomNavigationB
 public class MainActivityWithBottomNavigation extends AppCompatActivity {
 
     private ActivityMainWithBottomNavigationBinding binding;
+    private Handler mhandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,5 +47,9 @@ public class MainActivityWithBottomNavigation extends AppCompatActivity {
 
         XLog.init(LogLevel.ALL);//日志系统初始化
 
+    }
+
+    public void setHandler(Handler vhandler){
+        mhandler=vhandler;
     }
 }
