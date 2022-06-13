@@ -29,6 +29,7 @@ import com.rubbersheersock.amenity.databinding.FragmentDataBinding;
 import org.json.JSONObject;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,25 +79,27 @@ public class DataFragment extends Fragment {
                 LianjiaCDBeanInfo info = DataProcessor.getHouseInfo(beanlist);
                 final List<String> adapterData = new ArrayList<String>();
                 //存放要显示的数据
-                String brief = "最近更新时间为: "+info.latestUpdateTimeStamp+"; \n"
-                        +"上次更新新增房源: "+info.newForSaleNumber +"; "
-                        +"所有房源: "+info.totalHouseForSaleNumber +"; "
+                String brief = "最近更新时间为: "+new SimpleDateFormat("yyyy-MM-dd HH:SS:mm").format(info.latestUpdateTimeStamp)+"; \n"
+                        +"上次更新新增房源: "+info.newForSaleNumber +";  "
+                        +"所有房源: "+info.totalHouseForSaleNumber +";  "
                         +"已下架: "+info.soldNumber+";";
                 adapterData.add(brief);
                 adapterData.add("-----------在售同款房屋信息------------------");
                 for(int i=0;i<info.monitorHouseList.size();i++){
                     LianjiaCDBean bean = info.monitorHouseList.get(i);
-                    String monitorInfo = "面积: "+bean.proportion+" ;"
-                            +"售价:"+bean.price+" ;状态: 在售 "+" \n"
-                            +"信息变更时间: "+bean.fetchdate+" ";
+                    String monitorInfo = "面积: "+bean.proportion+" ; "
+                            +"售价:"+bean.price+" ; 状态: 在售 "+" \n"
+                            +"信息变更时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)
+                            +"  "+bean.decoration;
                     adapterData.add(monitorInfo);
                 }
                 adapterData.add("-------已下架房屋信息，可能是已售--------");
                 for(int i=0;i<info.soldHouseList.size();i++){
                     LianjiaCDBean bean = info.soldHouseList.get(i);
                     String soldInfo = "面积: "+bean.proportion+" ;"
-                            +"售价:"+bean.price+" ;状态: 下架 "+" \n"
-                            +"下架时间: "+bean.updatedate+" ";
+                            +"  售价:"+bean.price+" ;  状态: 下架 "+" \n"
+                            +"下架时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)
+                            +"  "+bean.decoration;
                     adapterData.add(soldInfo);
                 }
                 //创建ArrayAdapter对象adapter并设置适配器
