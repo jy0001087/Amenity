@@ -90,14 +90,14 @@ public class DataProcessor {
             if(bean.updatedate==null){
                 beanInfo.newForSaleNumber++;
                 beanInfo.newForSaleHouseList.add(bean);
-            }else if(beanInfo.latestUpdateTimeStamp.before(bean.updatedate)) {
+            }else if((bean.updatedate.getTime()+24*60*60*2*1000)<System.currentTimeMillis()){ //捕获已售房屋beanlist
+                beanInfo.soldNumber++;
+                beanInfo.soldHouseList.add(bean);
+            }else if(beanInfo.latestUpdateTimeStamp.before(bean.updatedate)) { //获取房屋最近更新时间
                 beanInfo.latestUpdateTimeStamp = bean.updatedate;
             }
             //捕获目标房屋信息65平左右
-            if((bean.updatedate.getTime()+24*60*60*2*1000)<System.currentTimeMillis()){
-                beanInfo.soldNumber++;
-                beanInfo.soldHouseList.add(bean);
-            }else if(bean.proportion>65 & bean.proportion<66){
+            if(bean.proportion>65 & bean.proportion<66){
                 beanInfo.monitorHouseList.add(bean);
             }
         }
