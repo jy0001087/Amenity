@@ -13,7 +13,8 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="0dp"
-        tools:context="com.example.carson_ho.adapte_demo.MainActivity">
+        tools:context="com.example.carson_ho.adapte_demo.MainActivity"
+        android:background="#EEE4E4E4">
 
         <ListView
             android:id="@+id/list_item"
@@ -22,9 +23,11 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="30dp"
-            android:divider="#AEAEAE"
+            android:divider="#A1869118"
             android:dividerHeight="1sp"
-            android:headerDividersEnabled="false"></ListView>
+            android:headerDividersEnabled="false"
+            android:clickable="true"
+            android:focusable="true"></ListView>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

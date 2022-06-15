@@ -33,6 +33,10 @@ public class MainActivityWithBottomNavigation extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainWithBottomNavigationBinding.inflate(getLayoutInflater());
+
+        //去掉标题栏
+        getSupportActionBar().hide();
+
         setContentView(binding.getRoot());
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
