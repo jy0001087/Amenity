@@ -19,5 +19,7 @@ public class LianjiaCDBean {
     public String status;
     public String url;
     public String updateFlag;
+    public float originalPrice;
+    public Timestamp originalUpdatedate;
 }
 

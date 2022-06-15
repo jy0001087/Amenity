@@ -68,6 +68,12 @@ public class DataProcessor {
                         case "url":
                             bean.url=innerJson.getString(key);
                             break;
+                        case "originalPrice":
+                            bean.originalPrice=Float.valueOf(innerJson.getString(key));
+                            break;
+                        case "originalFetchdate":
+                            bean.originalUpdatedate=new Timestamp(Long.valueOf(innerJson.getString(key)));
+                            break;
                     }
                 }
             }catch(Exception e){

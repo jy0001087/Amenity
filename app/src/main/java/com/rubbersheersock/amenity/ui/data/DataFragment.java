@@ -74,6 +74,7 @@ public class DataFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             try {
                 json = new JSONObject(intent.getStringExtra("json"));
+                XLog.tag("anemity").d("json = "+json);
                 ArrayList<LianjiaCDBean> beanlist = DataProcessor.getBeanList(json);
                 //定义一个链表用于存放要显示的数据
                 LianjiaCDBeanInfo info = DataProcessor.getHouseInfo(beanlist);
@@ -87,11 +88,15 @@ public class DataFragment extends Fragment {
                 adapterData.add("-----------在售同款房屋信息------------------");
                 for(int i=0;i<info.monitorHouseList.size();i++){
                     LianjiaCDBean bean = info.monitorHouseList.get(i);
-                    String monitorInfo = "面积: "+bean.proportion+" ; "
-                            +"售价:"+bean.price+" ; 状态: 在售 "+" \n"
-                            +"信息变更时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)
-                            +"  "+bean.decoration;
-                    adapterData.add(monitorInfo);
+                    StringBuilder monitorInfo = new StringBuilder();
+                    monitorInfo.append("面积: "+bean.proportion+" ; "+"售价:"+bean.price+" ; " +"\n");
+                    if(bean.originalUpdatedate == null) {
+                        monitorInfo.append("状态: " + bean.status+"\n");
+                    }else{
+                        monitorInfo.append("状态: " + bean.status + " " + new SimpleDateFormat("yyyy-MM-dd").format(bean.originalUpdatedate) + "原价" + bean.originalPrice + " \n");
+                    }
+                    monitorInfo.append("状态变更时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)+"  "+bean.decoration);
+                    adapterData.add(monitorInfo.toString());
                 }
                 adapterData.add("-------已下架房屋信息，可能是已售--------");
                 for(int i=0;i<info.soldHouseList.size();i++){
