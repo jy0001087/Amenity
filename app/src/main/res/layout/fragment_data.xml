@@ -21,12 +21,13 @@
             android:layout_marginTop="0dp"
             android:background="@color/primBottomTitle"
             android:textColor="@color/backgroundColor"
-            android:textSize="15dp" />
+            android:textSize="15dp"
+            android:gravity="center"/>
 
         <ListView
             android:id="@+id/list_item"
             android:layout_width="match_parent"
-            android:layout_height="648dp"
+            android:layout_height="match_parent"
             android:layout_below="@+id/primBottomTitle"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="0dp"

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -69,9 +70,12 @@ public class DataFragment extends Fragment {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String t = (String) listview.getAdapter().getItem(i);
+                LianjiaCDBean mBean = (LianjiaCDBean) listview.getAdapter().getItem(i);
                 // 将点击的item里面的字弹出来
-                Toast.makeText(getActivity(), t, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), mBean.url, Toast.LENGTH_SHORT).show();
+                Uri uri = Uri.parse(mBean.url);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
             }
         });
         return root;
@@ -92,6 +96,7 @@ public class DataFragment extends Fragment {
             LianjiaCDBeanInfo beanInfo = beanListProcessor(json);
             HouseInfoAdapter adapter = new HouseInfoAdapter(getContext(),(ArrayList<LianjiaCDBean>) beanInfo.monitorHouseList);
             listview.setAdapter(adapter);
+
             SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             formater.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
             primBottomTitle.setText("上次更新："+ formater.format(beanInfo.latestUpdateTimeStamp));

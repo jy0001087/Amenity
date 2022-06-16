@@ -1,6 +1,7 @@
 package com.rubbersheersock.amenity.ui.data;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import com.rubbersheersock.amenity.R;
 import com.rubbersheersock.amenity.ui.data.LianjiaCDBean;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -46,9 +48,24 @@ public class HouseInfoAdapter extends BaseAdapter {
 
         TextView txProportion = view.findViewById(R.id.listProportion);
         TextView txPrice = view.findViewById(R.id.listPrice);
+        TextView txOriginalUpdateDate = view.findViewById(R.id.listOriginalUpdateDate);
 
-        txProportion.setText(String.valueOf(mBeanList.get(i).getProportion())+"平米");
-        txPrice.setText(String.valueOf(mBeanList.get(i).getPrice())+"万");
+        Float originalPrice = mBeanList.get(i).originalPrice;
+        if (originalPrice == null || originalPrice == 0.0){
+            txPrice.setText(String.valueOf(mBeanList.get(i).getPrice())+"万");
+        }else if(originalPrice >= mBeanList.get(i).price){
+            txPrice.setText(String.valueOf(originalPrice)+" --> "+String.valueOf(mBeanList.get(i).getPrice())+"万");
+            txPrice.setTextColor(Color.parseColor("#FEFEFE"));
+            view.setBackgroundColor(Color.parseColor("#9CD061"));
+            SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd");
+            txOriginalUpdateDate.setText(formator.format(mBeanList.get(i).originalUpdatedate)+"变更");
+        }else if(originalPrice <= mBeanList.get(i).price){
+            txPrice.setText(String.valueOf(originalPrice)+" --> "+String.valueOf(mBeanList.get(i).getPrice())+"万");
+            txPrice.setTextColor(Color.parseColor("#FEFEFE"));
+            view.setBackgroundColor(Color.parseColor("#E63564"));
+        }
+        txProportion.setText(String.valueOf(mBeanList.get(i).getProportion())+" ㎡");
+
 
         return view;
     }
