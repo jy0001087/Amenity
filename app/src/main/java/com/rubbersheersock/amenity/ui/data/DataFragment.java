@@ -64,7 +64,7 @@ public class DataFragment extends Fragment {
         receiver = new DBJsonBroadcastReceiver();
         intentfilter = new IntentFilter();
         intentfilter.addAction("com.rubbersheersock.amenity.jsonQuery");
-        requireActivity().registerReceiver(receiver,intentfilter);
+        requireActivity().registerReceiver(receiver, intentfilter);
 
         //增加listview点击监听事件
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -89,22 +89,31 @@ public class DataFragment extends Fragment {
             XLog.tag("DBunit").i("broadcast has been received");
             try {
                 json = new JSONObject(intent.getStringExtra("json"));
-                XLog.tag("anemity-broadcast").d("json = "+json);
+                XLog.tag("anemity-broadcast").d("json = " + json);
             } catch (Exception e) {
-                XLog.tag("DBunit").e("Error occurred when string convert into json",e);
+                XLog.tag("DBunit").e("Error occurred when string convert into json", e);
             }
             LianjiaCDBeanInfo beanInfo = beanListProcessor(json);
-            HouseInfoAdapter adapter = new HouseInfoAdapter(getContext(),(ArrayList<LianjiaCDBean>) beanInfo.monitorHouseList);
+            HouseInfoAdapter adapter = new HouseInfoAdapter(getContext(), (ArrayList<LianjiaCDBean>) beanInfo.monitorHouseList);
             listview.setAdapter(adapter);
 
             SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             formater.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-            primBottomTitle.setText("上次更新："+ formater.format(beanInfo.latestUpdateTimeStamp));
+            primBottomTitle.setText("上次更新：" + formater.format(beanInfo.latestUpdateTimeStamp));
         }
 
-        public LianjiaCDBeanInfo beanListProcessor(JSONObject json){
-            ArrayList<LianjiaCDBean> mbeanList=DataProcessor.getBeanList(json);
+        public LianjiaCDBeanInfo beanListProcessor(JSONObject json) {
+            ArrayList<LianjiaCDBean> mbeanList = DataProcessor.getBeanList(json);
             LianjiaCDBeanInfo beanInfo = DataProcessor.getHouseInfo(mbeanList);
+            for (int k = 0; k < beanInfo.monitorHouseList.size(); k++) {
+                for (int i = 0; i < beanInfo.monitorHouseList.size()-1; i++) {
+                    if (beanInfo.monitorHouseList.get(i).price > beanInfo.monitorHouseList.get(i + 1).price) {
+                        LianjiaCDBean mBean = beanInfo.monitorHouseList.get(i);
+                        beanInfo.monitorHouseList.set(i, beanInfo.monitorHouseList.get(i + 1));
+                        beanInfo.monitorHouseList.set(i + 1, mBean);
+                    }
+                }
+            }
             return beanInfo;
         }
     }
