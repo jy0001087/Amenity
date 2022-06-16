@@ -1,6 +1,7 @@
 package com.rubbersheersock.amenity.ui.data;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class LianjiaCDBeanInfo {
     public Timestamp latestUpdateTimeStamp;
     public int newForSaleNumber;
     public int soldNumber;
-    public List<LianjiaCDBean> newForSaleHouseList = new LinkedList<>();
-    public List<LianjiaCDBean> monitorHouseList = new LinkedList<>();
-    public List<LianjiaCDBean> soldHouseList = new LinkedList<>();
+    public ArrayList<LianjiaCDBean> newForSaleHouseList = new ArrayList<>();
+    public ArrayList<LianjiaCDBean> monitorHouseList = new ArrayList<>();
+    public ArrayList<LianjiaCDBean> soldHouseList = new ArrayList<>();
 }

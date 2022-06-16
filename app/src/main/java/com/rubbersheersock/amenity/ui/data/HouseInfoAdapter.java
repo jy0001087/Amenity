@@ -1,4 +1,4 @@
-package com.rubbersheersock.amenity;
+package com.rubbersheersock.amenity.ui.data;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -27,17 +27,17 @@ public class HouseInfoAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 0;
+        return mBeanList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return null;
+        return mBeanList.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return i;
     }
 
     @Override
@@ -47,8 +47,8 @@ public class HouseInfoAdapter extends BaseAdapter {
         TextView txProportion = view.findViewById(R.id.listProportion);
         TextView txPrice = view.findViewById(R.id.listPrice);
 
-        txProportion.setText(String.valueOf(mBeanList.get(i).getProportion()));
-        txPrice.setText(String.valueOf(mBeanList.get(i).getPrice()));
+        txProportion.setText(String.valueOf(mBeanList.get(i).getProportion())+"平米");
+        txPrice.setText(String.valueOf(mBeanList.get(i).getPrice())+"万");
 
         return view;
     }

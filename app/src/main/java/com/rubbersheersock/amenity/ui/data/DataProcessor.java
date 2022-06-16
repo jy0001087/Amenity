@@ -72,7 +72,11 @@ public class DataProcessor {
                             bean.originalPrice=Float.valueOf(innerJson.getString(key));
                             break;
                         case "originalFetchdate":
-                            bean.originalUpdatedate=new Timestamp(Long.valueOf(innerJson.getString(key)));
+                            if(innerJson.getString(key) != null & !(innerJson.getString(key).equals("null"))) {
+                                bean.originalUpdatedate = new Timestamp(Long.valueOf(innerJson.getString(key)));
+                            }else{
+                                bean.originalUpdatedate = null;
+                            }
                             break;
                     }
                 }

@@ -10,24 +10,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="30dp"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="0dp"
         tools:context="com.example.carson_ho.adapte_demo.MainActivity"
-        android:background="#EEE4E4E4">
+        >
+
+        <TextView
+            android:id="@+id/primBottomTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:background="@color/primBottomTitle"
+            android:textColor="@color/backgroundColor"
+            android:textSize="15dp" />
 
         <ListView
             android:id="@+id/list_item"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
+            android:layout_height="648dp"
+            android:layout_below="@+id/primBottomTitle"
             android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
             android:layout_marginBottom="30dp"
-            android:divider="#A1869118"
-            android:dividerHeight="1sp"
-            android:headerDividersEnabled="false"
             android:clickable="true"
-            android:focusable="true"></ListView>
+            android:divider="#6DD8D8D8"
+            android:dividerHeight="1sp"
+            android:focusable="true"
+            android:headerDividersEnabled="false"
+            android:background="@color/backgroundColor"></ListView>
+
+
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

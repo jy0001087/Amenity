@@ -11,9 +11,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -28,10 +30,9 @@ import com.rubbersheersock.amenity.databinding.FragmentDataBinding;
 
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.TimeZone;
 
 public class DataFragment extends Fragment {
 
@@ -41,6 +42,7 @@ public class DataFragment extends Fragment {
     private DBTransferService myService;
     private Object json;
     private ListView listview;
+    private TextView primBottomTitle;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -50,9 +52,9 @@ public class DataFragment extends Fragment {
         binding = FragmentDataBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //增加listview
+        //增加各种控件
         listview = (ListView) root.findViewById(R.id.list_item);
-
+        primBottomTitle = root.findViewById(R.id.primBottomTitle);
         //启动服务
         Intent intent = new Intent(getActivity(), DBTransferService.class);
         getActivity().startService(intent);
@@ -62,8 +64,16 @@ public class DataFragment extends Fragment {
         intentfilter = new IntentFilter();
         intentfilter.addAction("com.rubbersheersock.amenity.jsonQuery");
         requireActivity().registerReceiver(receiver,intentfilter);
-        XLog.tag("amenity").i(json);
 
+        //增加listview点击监听事件
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String t = (String) listview.getAdapter().getItem(i);
+                // 将点击的item里面的字弹出来
+                Toast.makeText(getActivity(), t, Toast.LENGTH_SHORT).show();
+            }
+        });
         return root;
     }
 
@@ -72,50 +82,25 @@ public class DataFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            XLog.tag("DBunit").i("broadcast has been received");
             try {
                 json = new JSONObject(intent.getStringExtra("json"));
-                XLog.tag("anemity").d("json = "+json);
-                ArrayList<LianjiaCDBean> beanlist = DataProcessor.getBeanList(json);
-                //定义一个链表用于存放要显示的数据
-                LianjiaCDBeanInfo info = DataProcessor.getHouseInfo(beanlist);
-                final List<String> adapterData = new ArrayList<String>();
-                //存放要显示的数据
-                String brief = "最近更新时间为: "+new SimpleDateFormat("yyyy-MM-dd HH:SS:mm").format(info.latestUpdateTimeStamp)+"; \n"
-                        +"上次更新新增房源: "+info.newForSaleNumber +";  "
-                        +"所有房源: "+info.totalHouseForSaleNumber +";  "
-                        +"已下架: "+info.soldNumber+";";
-                adapterData.add(brief);
-                adapterData.add("-----------在售同款房屋信息------------------");
-                for(int i=0;i<info.monitorHouseList.size();i++){
-                    LianjiaCDBean bean = info.monitorHouseList.get(i);
-                    StringBuilder monitorInfo = new StringBuilder();
-                    monitorInfo.append("面积: "+bean.proportion+" ; "+"售价:"+bean.price+" ; " +"\n");
-                    if(bean.originalUpdatedate == null) {
-                        monitorInfo.append("状态: " + bean.status+"\n");
-                    }else{
-                        monitorInfo.append("状态: " + bean.status + " " + new SimpleDateFormat("yyyy-MM-dd").format(bean.originalUpdatedate) + "原价" + bean.originalPrice + " \n");
-                    }
-                    monitorInfo.append("状态变更时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)+"  "+bean.decoration);
-                    adapterData.add(monitorInfo.toString());
-                }
-                adapterData.add("-------已下架房屋信息，可能是已售--------");
-                for(int i=0;i<info.soldHouseList.size();i++){
-                    LianjiaCDBean bean = info.soldHouseList.get(i);
-                    String soldInfo = "面积: "+bean.proportion+" ;"
-                            +"  售价:"+bean.price+" ;  状态: 下架 "+" \n"
-                            +"下架时间: "+new SimpleDateFormat("yyyy-MM-dd").format(bean.fetchdate)
-                            +"  "+bean.decoration;
-                    adapterData.add(soldInfo);
-                }
-                //创建ArrayAdapter对象adapter并设置适配器
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_list_item_1, adapterData);
-                //将LsitView绑定到ArrayAdapter上
-                listview.setAdapter(adapter);
-                XLog.tag("DBunit").i("broadcast has been received");
+                XLog.tag("anemity-broadcast").d("json = "+json);
             } catch (Exception e) {
                 XLog.tag("DBunit").e("Error occurred when string convert into json",e);
             }
+            LianjiaCDBeanInfo beanInfo = beanListProcessor(json);
+            HouseInfoAdapter adapter = new HouseInfoAdapter(getContext(),(ArrayList<LianjiaCDBean>) beanInfo.monitorHouseList);
+            listview.setAdapter(adapter);
+            SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            formater.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+            primBottomTitle.setText("上次更新："+ formater.format(beanInfo.latestUpdateTimeStamp));
+        }
+
+        public LianjiaCDBeanInfo beanListProcessor(JSONObject json){
+            ArrayList<LianjiaCDBean> mbeanList=DataProcessor.getBeanList(json);
+            LianjiaCDBeanInfo beanInfo = DataProcessor.getHouseInfo(mbeanList);
+            return beanInfo;
         }
     }
 

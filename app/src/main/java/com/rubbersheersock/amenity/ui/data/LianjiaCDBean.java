@@ -21,5 +21,13 @@ public class LianjiaCDBean {
     public String updateFlag;
     public float originalPrice;
     public Timestamp originalUpdatedate;
+
+    public float getProportion(){
+        return this.proportion;
+    }
+
+    public float getPrice(){
+        return  this.price;
+    }
 }
 
