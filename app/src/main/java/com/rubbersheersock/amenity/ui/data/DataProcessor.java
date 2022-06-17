@@ -89,7 +89,7 @@ public class DataProcessor {
     }
 
     //brief上面的beanlist内容
-    public static LianjiaCDBeanInfo getHouseInfo(ArrayList<LianjiaCDBean> beanList){
+    public static LianjiaCDBeanInfo getHouseInfo(ArrayList<LianjiaCDBean> beanList,String param){
         LianjiaCDBeanInfo beanInfo = new LianjiaCDBeanInfo();
         beanInfo.totalHouseForSaleNumber=beanList.size();
         beanInfo.newForSaleNumber=0;
@@ -97,19 +97,32 @@ public class DataProcessor {
         beanInfo.latestUpdateTimeStamp = new Timestamp(1305687917);
         for(int i=0;i<beanList.size();i++) {
             LianjiaCDBean bean = beanList.get(i);
-            if(bean.updatedate==null){
-                beanInfo.newForSaleNumber++;
-                beanInfo.newForSaleHouseList.add(bean);
-            }else if((bean.updatedate.getTime()+24*60*60*2*1000)<System.currentTimeMillis()){ //捕获已售房屋beanlist
-                beanInfo.soldNumber++;
-                beanInfo.soldHouseList.add(bean);
-            }else if(beanInfo.latestUpdateTimeStamp.before(bean.updatedate)) { //获取房屋最近更新时间
+            switch(param){
+                case "重点房源":
+                    //捕获目标房屋信息65平左右
+                    if(bean.proportion>65 & bean.proportion<66){
+                        beanInfo.monitorHouseList.add(bean);
+                    }
+                    break;
+                case "最近新增":
+                if((bean.updatedate==null)||((bean.fetchdate.getTime()+7*24*60*60*1000)>System.currentTimeMillis())){
+                    beanInfo.monitorHouseList.add(bean);
+                }
+                    break;
+                case "下架/已售":
+                    if(bean.updatedate!=null&&((bean.updatedate.getTime()+24*60*60*2*1000)<System.currentTimeMillis())){
+                        beanInfo.monitorHouseList.add(bean);
+                    }
+                    break;
+                case "全部房源":
+                    beanInfo.monitorHouseList.add(bean);
+                    break;
+            }
+
+            if(bean.updatedate!=null&&beanInfo.latestUpdateTimeStamp.before(bean.updatedate)) { //获取房屋最近更新时间
                 beanInfo.latestUpdateTimeStamp = bean.updatedate;
             }
-            //捕获目标房屋信息65平左右
-            if(bean.proportion>65 & bean.proportion<66){
-                beanInfo.monitorHouseList.add(bean);
-            }
+
         }
 
         return beanInfo;

@@ -29,7 +29,6 @@
 
         <activity android:name=".MainActivity"/>
 
-        <service android:name=".Services.ScreenObserverService" />
         <service
             android:name=".Services.DBServices.DBTransferService"
             android:exported="false"/>
