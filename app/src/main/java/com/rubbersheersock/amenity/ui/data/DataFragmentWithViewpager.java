@@ -40,6 +40,7 @@ public class DataFragmentWithViewpager extends Fragment {
         mTabName.add("最近新增");
         mTabName.add("下架/已售");
         mTabName.add("全部房源");
+        mTabName.add("全市交易");
     }
 
     public void initView(View rootView){

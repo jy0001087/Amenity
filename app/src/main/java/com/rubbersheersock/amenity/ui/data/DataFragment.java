@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.TimeZone;
 
 public class DataFragment extends Fragment {
-    private static String ARG_PARAM = "mLabName";
+    private static String PARAM_KEY = "para";
     private String param;
     private DBJsonBroadcastReceiver receiver;
     private IntentFilter intentfilter;
@@ -46,7 +46,7 @@ public class DataFragment extends Fragment {
     public static DataFragment newInstance (String mLabName){
         DataFragment fg = new DataFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM, mLabName);
+        args.putString(PARAM_KEY, mLabName);
         fg.setArguments(args);
         return fg;
     }
@@ -55,7 +55,7 @@ public class DataFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getArguments()!= null){
-            param=getArguments().getString(ARG_PARAM);
+            param=getArguments().getString(PARAM_KEY);
         }
     }
 
@@ -69,6 +69,7 @@ public class DataFragment extends Fragment {
         primBottomTitle = rootView.findViewById(R.id.primBottomTitle);
         //启动服务
         Intent intent = new Intent(getActivity(), DBTransferService.class);
+        intent.putExtra(PARAM_KEY,param);
         getActivity().startService(intent);
         //注册广播接收
         receiver = new DBJsonBroadcastReceiver();
