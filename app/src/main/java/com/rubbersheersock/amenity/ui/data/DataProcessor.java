@@ -6,12 +6,17 @@ import com.elvishew.xlog.XLog;
 
 import org.json.JSONObject;
 
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class DataProcessor {
     public static final String PAG1="重点关注";
@@ -19,6 +24,7 @@ public class DataProcessor {
     public static final String PAG3="下架/已售";
     public static final String PAG4="全部房源";
     public static final String PAG5="全市概况";
+    public static final String CHART_TITLE = "住宅出售数量";
 
     //json转javabean，更好操作
     public static ArrayList<LianjiaCDBean> getBeanList(JSONObject json){
@@ -134,7 +140,7 @@ public class DataProcessor {
     }
 
     //将realestate表数据由json转为map
-    public static HashMap<Date,RealEstateInfoBean> getRealEstateInfo(JSONObject json){
+    public static  HashMap<Date,RealEstateInfoBean> getRealEstateInfo(JSONObject json){
         HashMap<Date,RealEstateInfoBean> rBean = new HashMap<>();
         Iterator<String> it = json.keys();
         while(it.hasNext()){
@@ -198,11 +204,26 @@ public class DataProcessor {
                    }
 
                }
-                rBean.put(new Date(Long.valueOf(key)),innerBean);
+               //剔除周末数据
+                Date mdate = new Date(Long.valueOf(key));
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(mdate);
+               if(cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY & cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+                   rBean.put(new Date(Long.valueOf(key)), innerBean);
+               }
             }catch(Exception e){
             XLog.tag("amenity").e("Error has been occurred , while transform realEstate-json to realEstateInfoBean.",e);
             }
         }
         return rBean;
+    }
+
+    public static ArrayList<Date> getOrderedXAxis(HashMap<Date,RealEstateInfoBean> mMap){
+        ArrayList<Date> orderedXAxis = new ArrayList<>();
+        for(Map.Entry<Date,RealEstateInfoBean> entry:mMap.entrySet()){
+            orderedXAxis.add(entry.getKey());
+        }
+        Collections.sort(orderedXAxis);
+        return orderedXAxis;
     }
 }

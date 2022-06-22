@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -30,6 +31,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.elvishew.xlog.XLog;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.rubbersheersock.amenity.R;
 import com.rubbersheersock.amenity.Services.DBServices.DBTransferService;
 
@@ -39,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class DataFragment extends Fragment {
@@ -102,7 +111,7 @@ public class DataFragment extends Fragment {
             }
             switch(param){
                 case DataProcessor.PAG5:
-                    chart.setVisibility(VISIBLE);  //展示LineChart控件
+                    //展示LineChart控件
                     LineChartPerformance();
                     break;
                 default:
@@ -151,7 +160,38 @@ public class DataFragment extends Fragment {
 
         public void LineChartPerformance(){
             HashMap<Date,RealEstateInfoBean> mMap=DataProcessor.getRealEstateInfo(json);
-            XLog.i("pause");
+            ArrayList<Date> orderedXAxis = DataProcessor.getOrderedXAxis(mMap);
+            ArrayList<Entry> list = new ArrayList<>();
+            for(int i =0;i<orderedXAxis.size();i++){
+                float x = orderedXAxis.get(i).getTime()/1000/60/60;
+                list.add(new Entry(x,Float.valueOf(mMap.get(orderedXAxis.get(i)).wholeUrban_residiential_house_num)));
+            }
+
+            LineDataSet dataSet = new LineDataSet(list,DataProcessor.CHART_TITLE);
+            dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSet.setColor(R.color.priceText);
+            dataSet.setLineWidth(3);
+            dataSet.setValueTextSize(10);
+            dataSet.setValueTextColor(R.color.majorText);
+
+            XAxis xAxis = chart.getXAxis();
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            chart.getXAxis().setDrawGridLines(false);
+            chart.getDescription().setText("成都每日住宅成交套数");
+            chart.getDescription().setTextSize(10);
+            chart.getDescription().setTextColor(R.color.priceText);
+
+            xAxis.setValueFormatter(new ValueFormatter() {
+                public String getFormattedValue(float value){
+                    String mDate = new SimpleDateFormat("MM-dd").format(new Date((long)(value*1000*60*60)));
+                    return mDate;
+                }
+            });
+
+
+            chart.setData(new LineData(dataSet));
+            chart.notifyDataSetChanged();
+            chart.setVisibility(VISIBLE);
         }
     }
 
