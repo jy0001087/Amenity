@@ -38,7 +38,11 @@
             android:headerDividersEnabled="false"
             android:background="@color/backgroundColor"></ListView>
 
-
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_below="@+id/primBottomTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
