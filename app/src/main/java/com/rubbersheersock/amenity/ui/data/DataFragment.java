@@ -173,13 +173,19 @@ public class DataFragment extends Fragment {
             dataSet.setLineWidth(3);
             dataSet.setValueTextSize(10);
             dataSet.setValueTextColor(R.color.majorText);
+            dataSet.setCircleColor(R.color.lineChartPointColor);
+            dataSet.setDrawCircleHole(false);
 
             XAxis xAxis = chart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-            chart.getXAxis().setDrawGridLines(false);
-            chart.getDescription().setText("成都每日住宅成交套数");
-            chart.getDescription().setTextSize(10);
+            chart.getAxisLeft().setDrawGridLines(false);
+            chart.getAxisRight().setDrawGridLines(false);
+            chart.getDescription().setText("成都全市每日住宅成交套数");
+            chart.getDescription().setTextSize(20);
             chart.getDescription().setTextColor(R.color.priceText);
+            chart.getAxisLeft().setEnabled(false);
+            chart.getAxisRight().setEnabled(false);
+            chart.setScaleXEnabled(true);
 
             xAxis.setValueFormatter(new ValueFormatter() {
                 public String getFormattedValue(float value){

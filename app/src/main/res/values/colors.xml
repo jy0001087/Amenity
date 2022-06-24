@@ -10,8 +10,8 @@
     <color name="backgroundColor">#FEFEFE</color>
     <color name="priceText">#F76360</color>
     <color name="majorText">#5D5D5E</color>
-    <color name="primBottomTitle">#2CB0FF</color>
+    <color name="primBottomTitle">#FFC03D</color>
     <color name="nevbar">#FFB850</color>
     <color name="tabSelectedText">#f6a025</color>
-    f5f6fb
+    <color name ="lineChartPointColor">#F47C5E</color>
 </resources>
