@@ -10,7 +10,7 @@ public class AmenityViewModel extends ViewModel {
 
     public AmenityViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("词根复习");
     }
 
     public LiveData<String> getText() {
