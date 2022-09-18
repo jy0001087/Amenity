@@ -9,3 +9,4 @@
 .cxx
 /app/release
 /app/schemas
+gradle/wrapper/gradle-wrapper.properties
