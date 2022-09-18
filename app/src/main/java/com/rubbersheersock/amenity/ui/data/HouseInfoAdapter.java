@@ -59,6 +59,7 @@ public class HouseInfoAdapter extends BaseAdapter {
             view.setBackgroundColor(Color.parseColor("#9CD061"));
             SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd");
             txOriginalUpdateDate.setText(formator.format(mBeanList.get(i).originalUpdatedate)+"变更");
+            view.setElevation(3);
         }else if(originalPrice <= mBeanList.get(i).price){
             txPrice.setText(String.valueOf(originalPrice)+" --> "+String.valueOf(mBeanList.get(i).getPrice())+"万");
             txPrice.setTextColor(Color.parseColor("#FEFEFE"));

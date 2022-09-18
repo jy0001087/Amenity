@@ -7,19 +7,16 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.rubbersheersock.amenity.ui.data.DataFragment"
-        android:label="@string/title_Data"
-        tools:layout="@layout/fragment_data" />
+        android:name="com.rubbersheersock.amenity.ui.data.DataFragmentWithViewpager"
+        tools:layout="@layout/fragement_with_viewpager" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.rubbersheersock.amenity.ui.amenity.AmenityFragment"
-        android:label="@string/title_Amenity"
         tools:layout="@layout/fragment_amenity" />
 
     <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.rubbersheersock.amenity.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
