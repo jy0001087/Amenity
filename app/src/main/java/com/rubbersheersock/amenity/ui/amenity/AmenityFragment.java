@@ -12,9 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Room;
 
 import com.elvishew.xlog.XLog;
 import com.rubbersheersock.amenity.R;
+import com.rubbersheersock.amenity.room.Morpheme.Morpheme;
+import com.rubbersheersock.amenity.room.Morpheme.MorphemeDatabase;
 
 public class AmenityFragment extends Fragment {
 
@@ -29,7 +32,7 @@ public class AmenityFragment extends Fragment {
         TextView textView = rootView.findViewById(R.id.text_dashboard);
         amenityViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         //TODO:增加“发送”按钮提交功能
-
+        init(rootView); //控件事件初始化
         Button sendButton = rootView.findViewById(R.id.morpheme_button);
 
 
@@ -50,16 +53,28 @@ public class AmenityFragment extends Fragment {
                     }
                 }
         );
-        //增加提交按钮交互
+        //增加输入框提交逻辑
         editText.setOnEditorActionListener(
                 new TextView.OnEditorActionListener(){
                     @Override
                     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                        XLog.tag("MORPHEME--").i(event);
+                        String inputedString = v.getText().toString();
+                        XLog.tag("MORPHEME-EditText").i(inputedString);
+                        saveMorphemeData(inputedString);
                         return false;
                     }
                 }
         );
+    }
+
+
+    //TODO:弄到线程里去写数据
+    public void saveMorphemeData(String data){
+        MorphemeDatabase db = Room.databaseBuilder(getContext(),MorphemeDatabase.class,"MorphemeDatabase")
+                .build();
+        Morpheme mMorpheme = new Morpheme();
+        mMorpheme.morphemeText=data;
+        db.morphemeDao().insert(mMorpheme);
     }
 
     @Override
