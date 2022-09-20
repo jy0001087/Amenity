@@ -18,6 +18,6 @@ public interface MorphemeDao {
     List<Morpheme> getByMorphemeMeaning(String morphemeMeaning);
 
     @Insert
-    void insert(Morpheme morpheme);
+    void insert(Morpheme... morpheme);
 
 }
