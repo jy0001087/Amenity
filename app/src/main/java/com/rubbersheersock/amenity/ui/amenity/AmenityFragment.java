@@ -23,6 +23,8 @@ import com.rubbersheersock.amenity.R;
 import com.rubbersheersock.amenity.room.Morpheme.Morpheme;
 import com.rubbersheersock.amenity.room.Morpheme.MorphemeDatabase;
 
+import java.util.List;
+
 public class AmenityFragment extends Fragment {
     private static final String LOGTAG = "Morpheme";
     private static final int INSERT = 1;
@@ -49,6 +51,7 @@ public class AmenityFragment extends Fragment {
         TextView textView = rootView.findViewById(R.id.text_dashboard);
         amenityViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         //TODO:增加“发送”按钮提交功能
+        //TODO:仅输入词根，开启查询功能
         init(rootView); //控件事件初始化
         Button sendButton = rootView.findViewById(R.id.morpheme_button);
 
@@ -90,11 +93,24 @@ public class AmenityFragment extends Fragment {
         Morpheme mMorpheme = new Morpheme();
         String[] dataSeparateMorpheme = data.split(" ");
         mMorpheme.morphemeText= dataSeparateMorpheme[0];
-        mMorpheme.morphemeMeaning= dataSeparateMorpheme[1];
+        String[] mMeanings= dataSeparateMorpheme[1].split(",");
+
         MorphemeDatabase.writeExecutor.execute(new Runnable() {
                                                    @Override
                                                    public void run() {
-                                                       db.morphemeDao().insert(mMorpheme);
+                                                       for(int i= 0;i<mMeanings.length;i++){
+                                                           List<Morpheme> mMorphemeList ;
+                                                           mMorphemeList = db.morphemeDao().getByMorphemeTextLikeMeaning(mMorpheme.morphemeText,mMeanings[i]);
+                                                           if(mMorphemeList.size()==0){ //如果输入词根+辞意组合不存在，查询词根是否存在
+                                                               mMorphemeList = db.morphemeDao().getByMorphemeText(mMorpheme.morphemeText);
+                                                               if(mMorphemeList.size()>0){ //如果词根存在，则增补辞意
+                                                                   mMorpheme.morphemeMeaning = mMeanings[i]+","+mMorphemeList.get(0).morphemeMeaning;
+                                                                   db.morphemeDao().update(mMorpheme);
+                                                               }else{ // 词根不存在，就增加词根
+                                                                   db.morphemeDao().insert(mMorpheme);
+                                                               }
+                                                           }
+                                                       }
                                                        XLog.tag(LOGTAG).d(mMorpheme.morphemeText);
                                                    }
                                                }
