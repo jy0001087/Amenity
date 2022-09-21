@@ -88,7 +88,9 @@ public class AmenityFragment extends Fragment {
     public void saveMorphemeDataBase(String data) {
         MorphemeDatabase db = MorphemeDatabase.getDataBase(getContext());
         Morpheme mMorpheme = new Morpheme();
-        mMorpheme.morphemeText= data;
+        String[] dataSeparateMorpheme = data.split(" ");
+        mMorpheme.morphemeText= dataSeparateMorpheme[0];
+        mMorpheme.morphemeMeaning= dataSeparateMorpheme[1];
         MorphemeDatabase.writeExecutor.execute(new Runnable() {
                                                    @Override
                                                    public void run() {
