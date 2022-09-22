@@ -17,6 +17,8 @@ public abstract class MorphemeDatabase extends RoomDatabase {
 
     public static final ExecutorService writeExecutor = Executors.newFixedThreadPool(3);
 
+    public static final ExecutorService queryExecutor = Executors.newFixedThreadPool(3);
+
     public static MorphemeDatabase getDataBase(Context context){
         if(INSTANCE == null){
             synchronized (MorphemeDatabase.class){

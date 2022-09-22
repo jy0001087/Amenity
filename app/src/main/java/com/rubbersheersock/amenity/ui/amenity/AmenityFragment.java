@@ -27,15 +27,16 @@ import java.util.List;
 
 public class AmenityFragment extends Fragment {
     private static final String LOGTAG = "Morpheme";
-    private static final int INSERT = 1;
+    private static final int INSERT = 1;  //查询结果
+    private static final String SEPARATOR = "-";
     //定义数据存储handler
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch(msg.what) {
                 case INSERT:
-
-                    break;
+                XLog.tag(LOGTAG).d(msg.getData().getString("RESULTSTRING"));
+                break;
             }
         }
     };
@@ -87,39 +88,62 @@ public class AmenityFragment extends Fragment {
     }
 
 
-    //TODO:弄到线程里去写数据
+    //TODO:弄到线程里去处理数据
     public void saveMorphemeDataBase(String data) {
         MorphemeDatabase db = MorphemeDatabase.getDataBase(getContext());
         Morpheme mMorpheme = new Morpheme();
         String[] dataSeparateMorpheme = data.split(" ");
         mMorpheme.morphemeText= dataSeparateMorpheme[0];
         String[] mMeanings= dataSeparateMorpheme[1].split(",");
-
-        MorphemeDatabase.writeExecutor.execute(new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                                                       for(int i= 0;i<mMeanings.length;i++){
-                                                           List<Morpheme> mMorphemeList ;
-                                                           mMorphemeList = db.morphemeDao().getByMorphemeTextLikeMeaning(mMorpheme.morphemeText,mMeanings[i]);
-                                                           if(mMorphemeList.size()==0){ //如果输入词根+辞意组合不存在，查询词根是否存在
-                                                               mMorphemeList = db.morphemeDao().getByMorphemeText(mMorpheme.morphemeText);
-                                                               if(mMorphemeList.size()>0){ //如果词根存在，则增补辞意
-                                                                   mMorpheme.morphemeMeaning = mMeanings[i]+","+mMorphemeList.get(0).morphemeMeaning;
-                                                                   db.morphemeDao().update(mMorpheme);
-                                                               }else{ // 词根不存在，就增加词根
-                                                                   db.morphemeDao().insert(mMorpheme);
+        if((mMorpheme.morphemeText!=null && mMorpheme.morphemeText.length()!=0)
+        && mMeanings.length != 0){        //词根更新流程
+            MorphemeDatabase.writeExecutor.execute(new Runnable() {
+                                                       @Override
+                                                       public void run() {
+                                                           for(int i= 0;i<mMeanings.length;i++){
+                                                               List<Morpheme> mMorphemeList ;
+                                                               mMorphemeList = db.morphemeDao().getByMorphemeTextLikeMeaning(mMorpheme.morphemeText,mMeanings[i]);
+                                                               if(mMorphemeList.size()==0){ //如果输入词根+辞意组合不存在，查询词根是否存在
+                                                                   mMorphemeList = db.morphemeDao().getByMorphemeText(mMorpheme.morphemeText);
+                                                                   if(mMorphemeList.size()>0){ //如果词根存在，则增补辞意
+                                                                       mMorpheme.morphemeMeaning = mMeanings[i]+","+mMorphemeList.get(0).morphemeMeaning;
+                                                                       db.morphemeDao().update(mMorpheme);
+                                                                   }else{ // 词根不存在，就增加词根
+                                                                       db.morphemeDao().insert(mMorpheme);
+                                                                   }
                                                                }
                                                            }
+                                                           XLog.tag(LOGTAG).d(mMorpheme.morphemeText);
                                                        }
-                                                       XLog.tag(LOGTAG).d(mMorpheme.morphemeText);
                                                    }
-                                               }
-               );
+            );
+        }else if (isEnglish(mMorpheme.morphemeText)){ //输入是英文，按英文查词根
+            MorphemeDatabase.queryExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<Morpheme> rMorphemeList = db.morphemeDao().getByMorphemeText(mMorpheme.morphemeText);
+                    Message msg = new Message();
+                    msg.what=1;
+                    Bundle data = new Bundle();
+                    data.putString("RESULTSTRING",mMorpheme.morphemeText+SEPARATOR+mMorpheme.morphemeMeaning);
+                    msg.setData(data);
+                    mHandler.sendMessage(msg);
+                }
+            });
+        }
     }
 
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+    }
+
+
+    public static boolean isEnglish(String p) {
+        byte[] bytes = p.getBytes();
+        int i = bytes.length;//i为字节长度
+        int j = p.length();//j为字符长度
+        return i == j;
     }
 }
