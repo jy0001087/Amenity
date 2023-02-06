@@ -64,4 +64,6 @@ dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.25'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    compileOnly 'de.robv.android.xposed:api:82' //xpose版本
 }

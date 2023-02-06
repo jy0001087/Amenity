@@ -6,6 +6,7 @@ dependencyResolutionManagement {
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         maven { url 'https://jitpack.io' }
+        maven { url "https://api.xposed.info/" }
     }
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 }
