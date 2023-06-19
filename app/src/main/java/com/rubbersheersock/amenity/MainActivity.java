@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         //启动后台服务
         final Intent intent = new Intent(this, ScreenObserverService.class);
         startService(intent);
-    //设置屏幕常亮
+        //设置屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         //控件处理
         ch = (Chronometer) findViewById(R.id.chronometer);
