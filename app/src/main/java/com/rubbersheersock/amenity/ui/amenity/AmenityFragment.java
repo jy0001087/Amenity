@@ -16,7 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.room.Room;
 
 import com.elvishew.xlog.XLog;
 import com.rubbersheersock.amenity.R;

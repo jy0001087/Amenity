@@ -4,7 +4,7 @@
     </string>
     <string name="title_Data">爬虫数据</string>
     <string name="title_Amenity">日常工具</string>
-    <string name="title_notifications">通知</string>
+    <string name="title_notifications">自动化工具</string>
     <string name="title_DataFragment_query_button">查询</string>
     <string name="textappearance_button">提交</string>
 </resources>
