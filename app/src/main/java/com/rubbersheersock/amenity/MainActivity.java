@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.view.View;
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         returnGMSinfo();
         getLocationFigure();
     }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void AmenityInsert(Long value, String title) {

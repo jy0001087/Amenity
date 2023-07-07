@@ -1,5 +1,10 @@
 package com.rubbersheersock.amenity.ui.notifications;
 
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -28,25 +33,39 @@ public class NotificationsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_amenity, container, false);
 
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        //final TextView textView = binding.textNotifications;
+        //notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
         init(rootView); //控件事件初始化
         return rootView;
     }
 
     public void init(View rootView) {
-        try {
-            Integer Gps = Settings.Secure.getInt(getContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
-            XLog.tag(LOGTAG).i("Gps status:"+Gps);
-        }catch(Settings.SettingNotFoundException e){
-            XLog.tag(LOGTAG).e("错误信息"+e);
-        }
+        LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        XLog.tag(LOGTAG).i("Gps status:"+lm.isLocationEnabled());
+        toggleGPS();
     }
+
+
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+
+    private void  toggleGPS() {
+        Intent gpsIntent = new Intent();
+        gpsIntent.setClassName("com.android.settings",
+                "com.android.settings.widget.SettingsAppWidgetProvider");
+        gpsIntent.addCategory("android.intent.category.ALTERNATIVE");
+        gpsIntent.setData(Uri.parse("custom:3"));
+        Context context = getContext().getApplicationContext();
+        try {
+            context.sendBroadcast(gpsIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

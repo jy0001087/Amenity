@@ -146,9 +146,10 @@ public class DataFragment extends Fragment {
         public LianjiaCDBeanInfo beanListProcessor(JSONObject json) {
             ArrayList<LianjiaCDBean> mbeanList = DataProcessor.getBeanList(json);
             LianjiaCDBeanInfo beanInfo = DataProcessor.getHouseInfo(mbeanList,param);
+            //价格排序 改为 updatedate 排序
             for (int k = 0; k < beanInfo.monitorHouseList.size(); k++) {
                 for (int i = 0; i < beanInfo.monitorHouseList.size()-1; i++) {
-                    if (beanInfo.monitorHouseList.get(i).price > beanInfo.monitorHouseList.get(i + 1).price) {
+                    if (beanInfo.monitorHouseList.get(i).updatedate.before(beanInfo.monitorHouseList.get(i + 1).updatedate)) {
                         LianjiaCDBean mBean = beanInfo.monitorHouseList.get(i);
                         beanInfo.monitorHouseList.set(i, beanInfo.monitorHouseList.get(i + 1));
                         beanInfo.monitorHouseList.set(i + 1, mBean);

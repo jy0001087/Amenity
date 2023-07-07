@@ -53,12 +53,15 @@ public class HouseInfoAdapter extends BaseAdapter {
         Float originalPrice = mBeanList.get(i).originalPrice;
         if (originalPrice == null || originalPrice == 0.0){
             txPrice.setText(String.valueOf(mBeanList.get(i).getPrice())+"万");
+            //当价格未变时，现实最近一次更新时间
+            SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd");
+            txOriginalUpdateDate.setText(formator.format(mBeanList.get(i).updatedate)+"更新");
         }else if(originalPrice >= mBeanList.get(i).price){
             txPrice.setText(String.valueOf(originalPrice)+" --> "+String.valueOf(mBeanList.get(i).getPrice())+"万");
             txPrice.setTextColor(Color.parseColor("#FEFEFE"));
             view.setBackgroundColor(Color.parseColor("#9CD061"));
             SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd");
-            txOriginalUpdateDate.setText(formator.format(mBeanList.get(i).originalUpdatedate)+"变更");
+            txOriginalUpdateDate.setText(formator.format(mBeanList.get(i).originalUpdatedate)+"降价");
             view.setElevation(3);
         }else if(originalPrice <= mBeanList.get(i).price){
             txPrice.setText(String.valueOf(originalPrice)+" --> "+String.valueOf(mBeanList.get(i).getPrice())+"万");
